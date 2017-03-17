@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="wang">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="/dist/css/style.css">
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/dist/font/iconfont.css">
+    <link rel="stylesheet" href="/bower_components/swiper/dist/css/swiper.min.css">
+</head>
+
+<body>
+    <!--header-->
+    <header>
+        <div class="header-logo">
+            淘</div>
+        <div class="header-search">
+            <div>寻找宝贝商铺</div>
+        </div>
+    </header>
+    <!-- section -->
+    <section ng-view ng-controller="IndexController">
+    </section>
+    <footer>
+        <div><a href="#!/"><i class="iconfont icon-shouyeshouye"></i></a></div>
+        <div><a href="#!/shop"><i class="iconfont  icon-tubiao4"></i></a></div>
+        <div><a href="#!/login"><i class="iconfont icon-denglu"></i></a></div>
+    </footer>
+    <script src="/bower_components/swiper/dist/js/swiper.min.js"></script>
+    <script src="/bower_components/angular/angular.min.js"></script>
+    <script src="/bower_components/angular-route/angular-route.min.js"></script>
+    <script src="/dist/js/index.js"></script>
+</body>
+
+</html>

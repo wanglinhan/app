@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Document</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			body {
+				background: #ccc;
+				height: 667px;
+				overflow: hidden;
+				perspective: 800px;
+				-webkit-transition: all 2s ease 0s;
+			}
+			
+			.mytank {
+				width: 60px;
+				height: 60px;
+				background: #ccc;
+				position: absolute;
+				bottom: 150px;
+				left: 650px;
+				z-index: 5;
+				-webkit-transform: rotate(0deg);
+			}
+			
+			.mytankshot {
+				width: 30px;
+				height: 30px;
+				border-radius: 25px;
+				background: #666;
+				position: absolute;
+				left: 0;
+				top: 0;
+			}
+			
+			.enemytank {
+				width: 60px;
+				height: 60px;
+				background: #ccc;
+				position: absolute;
+				top: 60px;
+			}
+			
+			.enemyshot {
+				width: 10px;
+				height: 10px;
+				background: #666;
+				position: absolute;
+				border-radius: 5px;
+			}
+			
+			.all {
+				position: relative;
+				left: 0;
+				top: 0;
+				background: url(tank/bg.jpg);
+				background-size: cover;
+				overflow: hidden
+			}
+			
+			.big {
+				width: 1000px;
+				height: 50px;
+				background: transparent;
+				border: 1px solid #666;
+				position: relative;
+				margin: 100px auto;
+				border-radius: 20px;
+				overflow: hidden;
+				text-align: center;
+				color: #fff;
+				font-family: "微软雅黑";
+				font-size: 20px;
+			}
+			
+			.small {
+				width: 0px;
+				height: 50px;
+				background: -webkit-linear-gradient(top, #20587B, #4FCBD7, #9FF7FF 50%, #4FCBD7, #20587B);
+			}
+			
+			.jindu {
+				position: absolute;
+				z-index: 20
+			}
+			
+			.win {
+				width: 800px;
+				height: 600px;
+				display: block;
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				z-index: 800;
+				-webkit-transform: translateX(-50%) translateY(-50%) translateZ(800px);
+				display: block;
+				-webkit-transition: all 2s ease 0s;
+				opacity: 0;
+				border-radius: 20px;
+			}
+			
+			.lose {
+				width: 800px;
+				height: 600px;
+				display: block;
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				z-index: -10;
+				-webkit-transform: translateX(-50%) translateY(-50%) translateZ(800px);
+				-webkit-transition: all 2s ease 0s;
+				opacity: 0;
+				border-radius: 50px;
+			}
+		</style>
+		<script src="jquery-1.8.3.min.js"></script>
+	</head>
+
+	<body>
+
+		<div class="all">
+
+			<div class="big">
+				<div class="small"></div>
+				<div class="jindu">加载进度</div>
+			</div>
+
+		</div>
+		<img src="tank/win.jpg" alt="" class="win">
+		<img src="tank/pangzi.jpg" alt="" class="lose">
+
+		<script>
+			var clientWidth = document.documentElement.clientWidth;
+
+			var clientHeight = document.documentElement.clientHeight;
+
+			var num = -1;
+
+			$('.all').css({
+				width: clientWidth,
+				height: clientHeight
+			});
+
+			var oBig = document.querySelector('.big');
+
+			var oSmall = document.querySelector('.small');
+
+			var step = 20;
+
+			var timer = null;
+
+			timer = setInterval(function() {
+
+				if(oSmall.offsetWidth >= 1000) {
+
+					clearInterval(timer);
+
+					$(".all").animate({
+						top: -clientHeight
+					}, "slow", function() {
+
+						init(5);
+
+					});
+				} else {
+
+					oSmall.style.width = oSmall.offsetWidth + step + 'px';
+				}
+
+			}, 30);
+
+			function MyTank() {
+
+				this.speed = 20;
+
+				this.arrTemp = [];
+
+				this.canMove = true;
+
+				this.code = 38;
+
+				this.now = 0;
+
+				this.left = false;
+
+				this.right = false;
+
+				this.top = false;
+
+				this.bottom = false;
+
+				this.life = 10;
+
+				this.alive = true;
+
+				this.init();
+
+				this.move();
+
+				var self = this;
+
+				document.onkeydown = function(ent) {
+
+					var e = ent || event;
+
+					if(e.keyCode >= 37 && e.keyCode <= 40) {
+
+						switch(e.keyCode) {
+
+							case 37:
+								self.left = true;
+
+								self.code = 37;
+								break;
+
+							case 38:
+								self.top = true;
+								self.code = 38;
+								break;
+
+							case 39:
+
+								self.right = true;
+								self.code = 39;
+								break;
+
+							case 40:
+
+								self.bottom = true;
+								self.code = 40;
+								break;
+						}
+
+					}
+
+					if(e.keyCode == 68 && self.alive && self.canMove) {
+
+						new MyTankShot(self.code);
+					}
+
+				};
+
+				document.onkeyup = function(ent) {
+
+					var e = ent || event;
+
+					switch(e.keyCode) {
+						case 37:
+							self.left = false;
+							break;
+
+						case 38:
+							self.top = false;
+							break;
+
+						case 39:
+							self.right = false;
+							break;
+
+						case 40:
+							self.bottom = false;
+							break;
+
+					}
+
+				};
+
+			}
+
+			MyTank.prototype.init = function() {
+
+				this.dom = document.createElement('div');
+
+				this.dom.className = "mytank";
+
+				this.dom.style.backgroundImage = "url(tank/hero.jpg)";
+
+				this.dom.style.backgroundPosition = "-30px -25px";
+
+				document.body.appendChild(this.dom);
+
+			}
+
+			MyTank.prototype.keydown = function() {
+
+				this.check();
+
+				if(this.canMove) {
+
+					if(this.left) {
+
+						this.dom.style['-webkit-transform'] = 'rotate(270deg)';
+
+						this.dom.style.left = this.dom.offsetLeft - this.speed + 'px';
+
+						if(this.dom.offsetLeft < 0) {
+
+							this.dom.style.left = 0;
+
+						}
+
+					} else if(this.top) {
+
+						this.dom.style['-webkit-transform'] = 'rotate(0deg)';
+
+						this.dom.style.top = this.dom.offsetTop - this.speed + 'px';
+
+						if(this.dom.offsetTop < 0) {
+
+							this.dom.style.top = 0;
+
+						}
+
+					} else if(this.right) {
+
+						this.dom.style['-webkit-transform'] = 'rotate(90deg)';
+
+						this.dom.style.left = this.dom.offsetLeft + this.speed + 'px';
+
+						if(this.dom.offsetLeft > clientWidth - this.dom.offsetWidth) {
+
+							this.dom.style.left = clientWidth - this.dom.offsetWidth + 'px';
+
+						}
+
+					} else if(this.bottom) {
+
+						this.dom.style['-webkit-transform'] = 'rotate(180deg)';
+
+						this.dom.style.top = this.dom.offsetTop + this.speed + 'px';
+
+						if(this.dom.offsetTop > clientHeight - this.dom.offsetHeight) {
+
+							this.dom.style.top = clientHeight - this.dom.offsetHeight + 'px';
+
+						}
+
+					}
+
+				}
+
+			}
+
+			MyTank.prototype.move = function() {
+
+				var self = this;
+
+				this.timer = setInterval(function() {
+
+					self.keydown();
+
+					self.die();
+
+				}, 30);
+
+			};
+
+			MyTank.prototype.check = function() {
+
+				arrTemp = [];
+
+				for(var i = 0; i < arrEnemy.length; i++) {
+
+					if(arrEnemy[i].alive) {
+
+						arrTemp.push(arrEnemy[i]);
+					}
+				}
+
+				for(var j = 0; j < arrTemp.length; j++) {
+
+					// if(this.dom.offsetLeft+this.dom.offsetWidth>=arrTemp[j].dom.offsetLeft && this.dom.offsetLeft+this.dom.offsetWidth<=arrTemp[j].dom.offsetLeft+arrTemp[j].dom.offsetWidth && this.dom.offsetTop+this.dom.offsetHeight>=arrTemp[j].dom.offsetTop && this.dom.offsetTop+this.dom.offsetHeight<=arrTemp[j].dom.offsetTop+arrTemp[j].dom.offsetHeight)
+
+					// {
+
+					// 	console.log("碰上了");
+					// }
+				}
+
+			};
+
+			MyTank.prototype.die = function() {
+
+				var aDiv = document.querySelectorAll('.enemyshot');
+
+				for(var i = 0; i < aDiv.length; i++) {
+
+					if(aDiv[i].offsetLeft >= this.dom.offsetLeft && aDiv[i].offsetLeft <= this.dom.offsetLeft + this.dom.offsetWidth && aDiv[i].offsetTop >= this.dom.offsetTop && aDiv[i].offsetTop <= this.dom.offsetTop + this.dom.offsetHeight) {
+
+						document.body.removeChild(aDiv[i]);
+
+						this.life--;
+
+						if(this.life == 0) {
+
+							this.alive = false;
+
+							this.speed = 0;
+
+							this.dom.style.backgroundPosition = "0px 0px";
+
+							var self = this;
+
+							this.boomTimer = setInterval(function() {
+
+								self.now++;
+
+								if(self.now == 4) {
+
+									clearInterval(self.boomTimer);
+
+									document.body.removeChild(self.dom);
+
+									clearInterval(initTimer);
+
+									$('body').css({
+										"background": "#000000"
+									});
+
+									$('.lose').css({
+										'z-index': 10
+									});
+
+									$('.lose').css({
+										'-webkit-transform': 'translateX(-50%) translateY(-50%) translateZ(0px)',
+										'opacity': 1
+									});
+
+									self.arrTemp = [];
+
+									for(var i = 0; i < arrEnemy.length; i++) {
+
+										if(arrEnemy[i].alive) {
+
+											self.arrTemp.push(arrEnemy[i]);
+										}
+									}
+
+									for(var j = 0; j < self.arrTemp.length; j++) {
+
+										self.arrTemp[j].speed = 0;
+
+										clearInterval(self.arrTemp[j].timer);
+
+									}
+
+								} else {
+
+									self.dom.style.width = "100px";
+
+									self.dom.style.height = "100px";
+
+									self.dom.style.borderRadius = "50px";
+
+									self.dom.style.backgroundImage = "url(tank/" + self.now + ".jpg)";
+
+									self.dom.style.backgroundSize = "cover";
+
+								}
+
+							}, 80);
+
+						}
+					}
+				}
+
+			};
+
+			function MyTankShot(code) {
+
+				this.code = code;
+
+				this.speed = 10;
+
+				this.init();
+
+				this.move();
+			}
+
+			MyTankShot.prototype.init = function() {
+
+				this.dom = document.createElement('div');
+
+				this.dom.className = "mytankshot";
+
+				switch(this.code) {
+
+					case 37:
+
+						this.dom.style.left = myTank.dom.offsetLeft - 60 + 'px';
+
+						this.dom.style.top = myTank.dom.offsetTop + 15 + 'px';
+
+						break;
+
+					case 38:
+
+						//alert(1);
+
+						this.dom.style.left = myTank.dom.offsetLeft + 15 + 'px';
+
+						this.dom.style.top = myTank.dom.offsetTop - 60 + 'px';
+
+						break;
+
+					case 39:
+
+						this.dom.style.left = myTank.dom.offsetLeft + 90 + 'px';
+
+						this.dom.style.top = myTank.dom.offsetTop + 15 + 'px';
+
+						break;
+
+					case 40:
+
+						this.dom.style.left = myTank.dom.offsetLeft + 15 + 'px';
+
+						this.dom.style.top = myTank.dom.offsetTop + 90 + 'px';
+
+						break;
+
+				}
+
+				document.body.appendChild(this.dom);
+			};
+
+			MyTankShot.prototype.move = function() {
+
+				var self = this;
+
+				switch(this.code) {
+
+					case 37:
+						self.timer = setInterval(function() {
+
+							self.dom.style.left = self.dom.offsetLeft - self.speed + 'px';
+
+							self.check();
+
+						}, 5);
+						break;
+
+					case 38:
+
+						self.timer = setInterval(function() {
+
+							self.dom.style.top = self.dom.offsetTop - self.speed + 'px';
+
+							self.check();
+
+						}, 5);
+						break;
+
+					case 39:
+						self.timer = setInterval(function() {
+
+							self.dom.style.left = self.dom.offsetLeft + self.speed + 'px';
+
+							self.check();
+
+						}, 5);
+						break;
+
+					case 40:
+						self.timer = setInterval(function() {
+
+							self.dom.style.top = self.dom.offsetTop + self.speed + 'px';
+
+							self.check();
+
+						}, 5);
+						break;
+
+				}
+
+			};
+
+			MyTankShot.prototype.check = function() {
+
+				// this.die();
+
+				if(this.dom.offsetLeft < 0) {
+
+					document.body.removeChild(this.dom);
+				} else if(this.dom.offsetLeft > clientWidth - this.dom.offsetWidth) {
+
+					document.body.removeChild(this.dom);
+				}
+
+				if(this.dom.offsetTop < 0) {
+
+					document.body.removeChild(this.dom);
+				} else if(this.dom.offsetTop > clientHeight - this.dom.offsetHeight) {
+
+					document.body.removeChild(this.dom);
+				}
+
+			};
+
+			function EnemyTank(json) {
+
+				num++;
+
+				this.num = num;
+
+				this.left = json.left;
+
+				this.top = json.top;
+
+				this.rand = Math.ceil(Math.random() * 10000) % 6 + 1;
+
+				this.alive = true;
+
+				this.life = this.rand;
+
+				this.direct = 0;
+
+				this.arrTemp = [];
+
+				this.speed = 3;
+
+				this.now = 0;
+
+				this.init();
+
+				this.move();
+
+				this.change();
+
+			}
+
+			EnemyTank.prototype.init = function() {
+
+				this.dom = document.createElement('div');
+
+				this.dom.className = "enemytank";
+
+				this.dom.style.backgroundImage = "url(tank/enemy" + this.rand + ".png)";
+
+				this.dom.style.backgroundPosition = "-30px -25px";
+
+				this.dom.style.left = this.left + 'px';
+
+				this.dom.style.top = this.top + 'px';
+
+				document.body.appendChild(this.dom);
+
+			};
+
+			EnemyTank.prototype.move = function() {
+
+				this.direct = Math.ceil(Math.random() * 10000) % 4;
+
+				var self = this;
+
+				switch(this.direct) {
+
+					case 0:
+
+						//向下
+
+						this.dom.timer = setInterval(function() {
+
+							// self.speed=3;
+
+							// self.check();
+
+							self.dom.style['-webkit-transform'] = 'rotate(180deg)';
+							self.dom.style.top = self.dom.offsetTop + self.speed + 'px';
+							if(self.dom.offsetTop > clientHeight - self.dom.offsetHeight) {
+								self.dom.style.top = clientHeight - self.dom.offsetHeight + "px";
+							}
+
+							self.die();
+
+						}, 30);
+
+						break;
+
+					case 1:
+
+						//向右
+
+						this.dom.timer = setInterval(function() {
+
+							// self.speed=3;
+
+							// self.check();
+
+							self.dom.style['-webkit-transform'] = 'rotate(90deg)';
+							self.dom.style.left = self.dom.offsetLeft + self.speed + 'px';
+							if(self.dom.offsetLeft > clientWidth - self.dom.offsetWidth) {
+								self.dom.style.left = clientWidth - self.dom.offsetWidth + "px";
+							}
+
+							self.die();
+
+						}, 30);
+
+						break;
+
+					case 2:
+
+						//向左
+
+						this.dom.timer = setInterval(function() {
+
+							// self.speed=3;
+
+							// self.check();
+
+							self.dom.style['-webkit-transform'] = 'rotate(270deg)';
+							self.dom.style.left = self.dom.offsetLeft - self.speed + 'px';
+							if(self.dom.offsetLeft < 0) {
+
+								self.dom.style.left = 0;
+							}
+
+							self.die();
+						}, 30);
+
+						break;
+
+					case 3:
+
+						//向上
+
+						this.dom.timer = setInterval(function() {
+
+							// self.speed=3;
+
+							// self.check();
+
+							self.dom.style['-webkit-transform'] = 'rotate(0deg)';
+							self.dom.style.top = self.dom.offsetTop - self.speed + 'px';
+							if(self.dom.offsetTop < 0) {
+
+								self.dom.style.top = 0;
+							}
+
+							self.die();
+
+						}, 30);
+
+						break;
+
+				}
+
+			};
+
+			EnemyTank.prototype.check = function() {
+
+				arrTemp = [];
+
+				for(var i = 0; i < arrEnemy.length; i++) {
+
+					if(arrEnemy[i].alive) {
+
+						arrTemp.push(arrEnemy[i]);
+					}
+				}
+
+				arrTemp.splice(this.num, 1);
+
+				for(var j = 0; j < arrTemp.length; j++) {
+
+					if(this.dom.offsetLeft + this.dom.offsetWidth >= arrTemp[j].dom.offsetLeft && this.dom.offsetLeft + this.dom.offsetWidth <= arrTemp[j].dom.offsetLeft + arrTemp[j].dom.offsetWidth && this.dom.offsetTop + this.dom.offsetHeight >= arrTemp[j].dom.offsetTop && this.dom.offsetTop + this.dom.offsetHeight <= arrTemp[j].dom.offsetTop + arrTemp[j].dom.offsetHeight)
+
+					{
+
+						this.speed = 0;
+
+						// console.log("撞上了");
+					}
+				}
+
+			};
+
+			EnemyTank.prototype.change = function() {
+
+				var self = this;
+
+				this.timer = setInterval(function() {
+
+					clearInterval(self.dom.timer);
+
+					self.move();
+
+					if(self.alive) {
+
+						new EnemyShot(self.direct, self.dom.offsetLeft, self.dom.offsetTop);
+
+					}
+
+				}, 2000);
+
+			};
+
+			EnemyTank.prototype.die = function() {
+
+				var aDiv = document.querySelectorAll('.mytankshot');
+
+				for(var i = 0; i < aDiv.length; i++) {
+
+					if(aDiv[i].offsetLeft >= this.dom.offsetLeft && aDiv[i].offsetLeft <= this.dom.offsetLeft + this.dom.offsetWidth && aDiv[i].offsetTop >= this.dom.offsetTop && aDiv[i].offsetTop <= this.dom.offsetTop + this.dom.offsetHeight) {
+
+						document.body.removeChild(aDiv[i]);
+
+						this.life--;
+
+						if(this.life == 0) {
+
+							this.dom.style.backgroundPosition = "0px 0px";
+
+							this.alive = false;
+
+							clearInterval(this.dom.timer);
+
+							var self = this;
+
+							this.boomTimer = setInterval(function() {
+
+								self.now++;
+
+								if(self.now == 4) {
+
+									clearInterval(self.boomTimer);
+
+									document.body.removeChild(self.dom);
+
+									self.arrTemp = [];
+
+									for(var i = 0; i < arrEnemy.length; i++) {
+
+										if(arrEnemy[i].alive) {
+
+											self.arrTemp.push(arrEnemy[i]);
+										}
+									}
+
+									if(self.arrTemp.length == 0) {
+
+										myTank.canMove = false;
+
+										clearInterval(initTimer);
+
+										$('body').css({
+											"background": "#332931"
+										});
+
+										$('.win').css({
+											'z-index': 10
+										});
+
+										$('.win').css({
+											'-webkit-transform': 'translateX(-50%) translateY(-50%) translateZ(0px)',
+											'opacity': 1
+										});
+									}
+
+								} else {
+
+									self.dom.style.width = "100px";
+
+									self.dom.style.height = "100px";
+
+									self.dom.style.borderRadius = "50px";
+
+									self.dom.style.backgroundImage = "url(tank/" + self.now + ".jpg)";
+
+									self.dom.style.backgroundSize = "cover";
+
+								}
+
+							}, 50);
+
+						}
+
+					}
+				}
+
+			};
+
+			function EnemyShot(direct, left, top) {
+
+				this.left = left;
+
+				this.top = top;
+
+				this.direct = direct;
+
+				this.speed = 10;
+
+				this.init();
+
+				this.move();
+			}
+
+			EnemyShot.prototype.init = function() {
+
+				this.dom = document.createElement('div');
+
+				this.dom.className = "enemyshot";
+
+				switch(this.direct) {
+
+					case 0: //向下
+						this.dom.style.left = this.left + 25 + 'px';
+						this.dom.style.top = this.top + 70 + 'px';
+						break;
+
+					case 1: //向右
+						this.dom.style.left = this.left + 70 + 'px';
+						this.dom.style.top = this.top + 25 + 'px';
+						break;
+
+					case 2: //向左
+						this.dom.style.left = this.left - 25 + 'px';
+						this.dom.style.top = this.top + 25 + 'px';
+						break;
+
+					case 3: //向上
+						this.dom.style.left = this.left + 25 + 'px';
+						this.dom.style.top = this.top - 25 + 'px';
+						break;
+
+				}
+
+				document.body.appendChild(this.dom);
+
+			};
+
+			EnemyShot.prototype.move = function() {
+
+				var self = this;
+
+				switch(this.direct) {
+
+					case 0: //向下
+
+						this.timer = setInterval(function() {
+
+							if(self.dom.offsetTop > clientHeight - self.dom.offsetHeight) {
+
+								clearInterval(self.timer);
+
+								document.body.removeChild(self.dom);
+
+							} else {
+
+								self.dom.style.top = self.dom.offsetTop + self.speed + 'px';
+							}
+
+						}, 30);
+						break;
+
+					case 1: //向右
+						this.timer = setInterval(function() {
+
+							if(self.dom.offsetLeft > clientWidth - self.dom.offsetWidth) {
+
+								clearInterval(self.timer);
+
+								document.body.removeChild(self.dom);
+
+							} else {
+
+								self.dom.style.left = self.dom.offsetLeft + self.speed + 'px';
+							}
+
+						}, 30);
+						break;
+
+					case 2: //向左
+						this.timer = setInterval(function() {
+
+							if(self.dom.offsetLeft < 0) {
+
+								clearInterval(self.timer);
+
+								document.body.removeChild(self.dom);
+
+							} else {
+
+								self.dom.style.left = self.dom.offsetLeft - self.speed + 'px';
+							}
+
+						}, 30);
+						break;
+
+					case 3: //向上
+						this.timer = setInterval(function() {
+
+							if(self.dom.offsetTop < 0) {
+
+								clearInterval(self.timer);
+
+								document.body.removeChild(self.dom);
+
+							} else {
+
+								self.dom.style.top = self.dom.offsetTop - self.speed + 'px';
+							}
+
+						}, 30);
+						break;
+
+				}
+
+			};
+
+			var arrEnemy = [];
+
+			var arrTemp = [];
+
+			var myTank;
+
+			var initTimer = null
+
+			function init(n) {
+
+				myTank = new MyTank();
+
+				initTimer = setInterval(function() {
+
+					var enemy = document.querySelectorAll('.enemytank');
+
+					if(enemy.length == n) {
+
+						return;
+
+					} else {
+
+						var rand1 = Math.ceil(Math.random() * 10000) % (clientWidth - 59);
+
+						var rand2 = Math.ceil(Math.random() * 10000) % (clientHeight - 59);
+
+						arrEnemy.push(new EnemyTank({
+							left: rand1,
+							top: rand2
+						}));
+
+					}
+
+				}, 2000);
+
+			}
+		</script>
+	</body>
+
+</html>

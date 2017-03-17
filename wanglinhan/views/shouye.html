@@ -1,0 +1,79 @@
+<!--swiper-->
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/bower_components/swiper/dist/js/swiper.jquery.min.js"></script>
+<div class="swiper-container">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="/dist/img/1.jpg" alt=""></div>
+        <div class="swiper-slide"><img src="/dist/img/2.jpg" alt=""></div>
+        <div class="swiper-slide"><img src="/dist/img/3.jpg" alt=""></div>
+        <div class="swiper-slide"><img src="/dist/img/4.jpg" alt=""></div>
+        <div class="swiper-slide"><img src="/dist/img/5.jpg" alt=""></div>
+    </div>
+    <!-- Add Pagination -->
+    <div class="swiper-pagination"></div>
+    <!-- Add Arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+</div>
+<!-- logo -->
+<div class="section-logo">
+    <div class="img1"><img src="/dist/img/tianmao.png" alt="">
+        <div class="wenzi1">天猫</div>
+    </div>
+    <div class="img1"><img src="/dist/img/quhuasuan.png" alt="">
+        <div class="wenzi1">聚划算</div>
+    </div>
+    <div class="img1"><img src="/dist/img/tianmaoguoji.png" alt="">
+        <div class="wenzi1">天猫国际</div>
+    </div>
+    <div class="img1"><img src="/dist/img/waimai.png" alt="">
+        <div class="wenzi1">外卖</div>
+    </div>
+    <div class="img1"><img src="/dist/img/tianmaochaoshi.png" alt="">
+        <div class="wenzi1">天猫超市</div>
+    </div>
+    <div class="img1"><img src="/dist/img/chongzhizhongxin.png" alt="">
+        <div class="wenzi1">充值中心</div>
+    </div>
+    <div class="img1"><img src="/dist/img/feizhulvxing.png" alt="">
+        <div class="wenzi1">飞猪旅行</div>
+    </div>
+    <div class="img1"><img src="/dist/img/lingjinbi.png" alt="">
+        <div class="wenzi1">领金币</div>
+    </div>
+    <div class="img1"><img src="/dist/img/daojia.png" alt="">
+        <div class="wenzi1">到家</div>
+    </div>
+    <div class="img1"><img src="/dist/img/feilei.png" alt="">
+        <div class="wenzi1">分类</div>
+    </div>
+</div>
+<!-- shop -->
+<div class="shop">
+    <div ng-repeat="shop in shoplist">
+        <div>
+            <div>
+                <img ng-src="{{shop.img}}" alt="">
+            </div>
+            <a href="">{{shop.title}}</a>
+            <p><a href="javascript:void(0)" class="btn btn-danger" ng-click="add($index)" role="button">添加到购物车</a></p>
+        </div>
+    </div>
+</div>
+<script>
+$(function)({
+
+
+    //swiper
+    var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        nextButton: '.swiper-button-next',
+        prevButton: '.swiper-button-prev',
+        slidesPerView: 1,
+        paginationClickable: true,
+        spaceBetween: 30,
+        loop: true,
+        autoplay: 2000
+    });
+})
+</script>

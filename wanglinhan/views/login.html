@@ -1,0 +1,37 @@
+<div class="row">
+    <div class="col-md-12">
+        <% if(admin==null){ %>
+            <form class="form-horizontal" method="post" action="/login">
+                <div class="form-group">
+                    <label for="inputEmail3" class="col-sm-2 control-label">用户名：</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="inputEmail3" placeholder="请输入你的用户名" name="username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword3" class="col-sm-2 control-label">密码：</label>
+                    <div class="col-sm-10">
+                        <input type="password" name="password" class="form-control" id="inputPassword3" placeholder="请输入密码">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox"> 记住我
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-success">登陆</button>
+                        <button type="button" class="btn btn-danger">忘记密码</button>
+                    </div>
+                </div>
+            </form>
+            <% }else{ %>
+                <h3>欢迎<%= admin.username %></h3>
+                <% } %>
+    </div>
+</div>
